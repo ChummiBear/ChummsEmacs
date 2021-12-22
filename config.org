@@ -1,0 +1,273 @@
+#+STARTUP: overview
+#+TITLE: Chumm's Emacs
+#+CREATOR: Ketih Oldham
+#+LANGUAGE: en
+#+OPTIONS: num:nil
+[[./img/emacs.png]]
+* Install and About
+** About
+   This is really just for me to backup my configs. I decided to try Emacs after using Vim for over a decade.
+   As it turns out I really like it and this config was born. There is a lot I need to do.
+   I need to organize and document better.
+** Install  
+   =git clone https://github.com/chummibear/ChummsEmacs ~/.emacs.d/=
+
+   Remove any configs from ~/.emacs and ~/.emacs.d prior to cloning.
+   Let it download and install packages. Run in terminal first. It
+   my barf some errors. Ignore them and restart emacs.   
+  
+* Minor Settings
+** GUI elements are gross
+   #+begin_src emacs-lisp
+     (tool-bar-mode -1)
+     (menu-bar-mode -1)
+     (scroll-bar-mode -1)
+
+     (setq inhibit-startup-message t)
+   #+end_src
+** Line and column
+   #+begin_src emacs-lisp
+     (line-number-mode 1)
+     (column-number-mode 1)
+     (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+     (add-hook 'text-mode-hook 'display-line-numbers-mode)
+   #+end_src
+** Clock
+   #+begin_src emacs-lisp
+     (display-time-mode 1)
+   #+end_src
+** No Backups
+   #+begin_src emacs-lisp
+     (setq make-backup-file nil)
+     (setq auto-save-default nil)
+   #+end_src
+** y-or-n
+   #+begin_src emacs-lisp
+     (defalias 'yes-or-no-p ' y-or-n-p)
+   #+end_src
+** No bell
+   #+begin_src emacs-lisp
+     (setq ring-bell-function 'ignore)
+   #+end_src
+** Pretty symbols
+   #+begin_src emacs-lisp
+     (when window-system
+       (use-package pretty-mode
+	 :ensure t
+	 :config
+	 (global-pretty-mode t)))
+   #+end_src
+** Line highlight
+   #+begin_src emacs-lisp
+     (when window-system (global-hl-line-mode t))
+   #+end_src
+** Better Scrolling
+   #+begin_src emacs-lisp
+     (setq scroll-conservatively 100)
+   #+end_src
+** Clipboard
+   #+begin_src emacs-lisp
+     (setq x-select-enable-clipboard t)
+   #+end_src
+   
+* Terminal
+** Setting default shell to zsh
+   #+begin_src emacs-lisp
+     (defvar my-terminal-shell "/bin/zsh")
+     (defadvice ansi-term (before force-bash)
+       (interactive (list my-terminal-shell)))
+     (ad-activate 'ansi-term)
+   #+end_src
+** Keybind for quick terminal
+   #+begin_src emacs-lisp
+     (global-set-key (kbd "<s-return>") 'ansi-term)
+   #+end_src
+
+* Which-key
+  #+begin_src emacs-lisp
+    (use-package which-key
+      :ensure t
+      :init
+      (which-key-mode))
+  #+end_src
+
+* Hungry-delete
+  #+begin_src emacs-lisp
+    (use-package hungry-delete
+      :ensure t
+      :config (global-hungry-delete-mode))
+  #+end_src
+* Sudo Edit
+  #+begin_src emacs-lisp
+    (use-package sudo-edit
+      :ensure t
+      :bind ("s-e" . sudo-edit))
+  #+end_src
+* Dashboard
+  #+begin_src emacs-lisp
+    (use-package dashboard
+      :ensure t
+      :config
+	 (dashboard-setup-startup-hook)
+	 (setq dashboard-startup-banner "~/.emacs.d/img/satanialaugh.gif")  
+	 (setq dashboard-items '((recents . 5)))
+	 (setq dashboard-banner-logo-title "People don't think it be like it is but it do."))
+  #+end_src
+* Modeline
+** Spaceline
+   #+begin_src emacs-lisp
+     (use-package spaceline
+       :ensure t
+       :config
+       (require 'spaceline-config)
+       (setq powerline-default-separator (quote arrow))
+       (spaceline-emacs-theme))
+   #+end_src
+** Diminish
+   #+begin_src emacs-lisp
+     (use-package diminish
+       :ensure t
+       :init
+       (diminish 'hungry-delete-mode)
+       (diminish 'beacon-mode)
+       (diminish 'rainbow-mode)
+       (diminish 'which-key-mode))
+   #+end_src
+* Beacon
+  #+begin_src emacs-lisp
+    (use-package beacon
+      :ensure t
+      :init
+      (beacon-mode 1))
+  #+end_src
+* Popup-kill-ring
+  #+begin_src emacs-lisp
+    (use-package popup-kill-ring
+      :ensure t
+      :bind ("M-y" . popup-kill-ring))
+  #+end_src
+* Swiper
+  #+begin_src emacs-lisp
+    (use-package swiper
+      :ensure t
+      :bind ("C-s" . 'swiper))
+  #+end_src
+* Mark-multiple
+  #+begin_src emacs-lisp
+    (use-package mark-multiple
+      :ensure t
+      :bind ("C-c q" . 'mark-next-like-this))
+  #+end_src
+* Expand-region
+  #+begin_src emacs-lisp
+    (use-package expand-region
+      :ensure t
+      :bind ("C-q" . er/expand-region))
+  #+end_src
+* Org
+** Basic config
+   #+begin_src emacs-lisp
+     (setq org-ellipsis " ")
+     (setq org-src-tab-acts-natively t)
+     (setq org-src-fontify-natively t)
+     (setq org-confirm-babel-evaluate nil)
+     (setq org-src-window-setup 'current-window)
+     (add-hook 'org-mode-hook 'org-indent-mode)
+     (require 'org-tempo)
+     (add-to-list 'org-structure-template-alist
+		  '("s" . "src"))
+     (add-to-list 'org-structure-template-alist
+		  '("el" . "src emacs-lisp"))
+   #+end_src   
+** Org Bullets
+   #+begin_src emacs-lisp
+     (use-package org-bullets
+       :ensure t
+       :config
+       (add-hook 'org-mode-hook (lambda () (org-bullets-mode))))
+   #+end_src
+* IDO
+** Enable IDO Mode
+   #+begin_src emacs-lisp
+     (setq ido-enable-flex-matching nil)
+     (setq ido-create-new-buffer 'always)
+     (setq ido-everywhere t)
+     (ido-mode 1)
+   #+end_src
+** IDO-vertical
+   #+begin_src emacs-lisp
+     (use-package ido-vertical-mode
+       :ensure t
+       :init
+       (ido-vertical-mode 1))
+     (setq ido-vertical-define-keys 'C-n-and-C-p-only)
+   #+end_src
+** Smex
+   #+begin_src emacs-lisp
+     (use-package smex
+       :ensure t
+       :init (smex-initialize)
+       :bind
+       ("M-x" . smex))
+   #+end_src
+
+** Switch Buffer
+   #+begin_src emacs-lisp
+     (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+   #+end_src
+* Buffers
+** enable ibuffer
+   #+begin_src emacs-lisp
+     (global-set-key (kbd "C-x b") 'ibuffer)
+   #+end_src
+** expert
+   #+begin_src emacs-lisp
+     (setq ibuffer-expert t)
+   #+end_src
+
+* Avy
+  #+begin_src emacs-lisp
+    (use-package avy
+      :ensure t
+      :bind
+      ("M-s" . avy-goto-char))
+  #+end_src
+
+* Useful Functions
+  #+begin_src emacs-lisp
+    (defun kill-whole-word ()
+      (interactive)
+      (backward-word)
+      (kill-word 1))
+    (global-set-key (kbd "C-c w w") 'kill-whole-word)
+  #+end_src
+* Config edit/reload
+** edit
+   #+begin_src emacs-lisp
+     (defun config-visit ()
+       (interactive)
+       (find-file "~/.emacs.d/config.org"))
+     (global-set-key (kbd "C-c e") 'config-visit)
+   #+end_src
+** reload
+   #+begin_src emacs-lisp
+     (defun config-reload()
+       (interactive)
+       (org-babel-load-file (expand-file-name "~/.emacs.d/config.org")))
+     (global-set-key (kbd "C-c r") 'config-reload)
+   #+end_src
+
+* Rainbow
+  #+begin_src emacs-lisp
+    (use-package rainbow-mode
+      :ensure t
+      :init (add-hook 'prog-mode-hook 'rainbow-mode))
+  #+end_src
+* Company
+  #+begin_src emacs-lisp
+    (use-package company
+      :ensure t
+      :config
+      (setq company-idle-delay 0)
+      (setq company-minimum-prefix-length 3))
+  #+end_src
